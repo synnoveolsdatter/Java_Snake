@@ -49,7 +49,7 @@ public class Game extends JFrame implements ActionListener {
 			game.addKeyListener(new KeyAdapter() {
 			    @Override
 			    public void keyPressed(KeyEvent key) {
-			    	System.out.println("Key Pressed: " + key.getKeyCode());
+			    	// System.out.println("Key Pressed: " + key.getKeyCode());
 			        int k = key.getKeyCode();
 			        switch (k) {
 			            case 119:
