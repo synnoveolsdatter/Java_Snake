@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.JFrame;
@@ -21,11 +22,12 @@ public class Game extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	public static final int REAL_WIDTH = 800;
 	public static final int REAL_HEIGHT = 600;
-	public static final int WIDTH = 40;
-	public static final int HEIGHT = 30;
 	public static final int BLOCKSIZE = 20;
+	public static final int WIDTH = (int)REAL_WIDTH / BLOCKSIZE - 1;
+	public static final int HEIGHT = (int)REAL_HEIGHT / BLOCKSIZE - 1;
 	public static int TICKDELAY = 70;
-	
+    public static Direction direction;
+
 	public Snake snake;
 	public short[] apple;
 	
@@ -33,6 +35,7 @@ public class Game extends JFrame implements ActionListener {
 	private Random rand = new Random();
 	private boolean alive = true;
 	private static boolean running = false;
+	private static Direction nextDir = Direction.NOWHERE;
 	
 	public static void main(String[] args) {
 		if (args.length > 1) {
@@ -40,7 +43,7 @@ public class Game extends JFrame implements ActionListener {
 		} else {
 			System.out.println("You can optionally add a number to delay between frames if you choose.");
 			System.out.println("(usage: java -jar Game.jar {milliseconds between frames}");
-			System.out.println("(default is 70");
+			System.out.println("(default is 70)");
 		}
 		EventQueue.invokeLater(() -> {
 			Game game = new Game("Snake Clone - Synnove Lemon");
@@ -55,29 +58,41 @@ public class Game extends JFrame implements ActionListener {
 			            case 119:
 			            case 87:
 			            case KeyEvent.VK_UP:
+			            	if (direction == Direction.DOWN)
+			            		break;
 			                game.snake.dir[0] = 0;
 			                game.snake.dir[1] = -1;
+			                nextDir = Direction.UP;
 			                running = true;
 			                break;
 			            case 115:
 			            case 83:
 			            case KeyEvent.VK_DOWN:
+			            	if (direction == Direction.UP)
+			            		break;
 			            	game.snake.dir[0] = 0;
 			            	game.snake.dir[1] = 1;
+			            	nextDir = Direction.DOWN;
 			            	running = true;
 			                break;
 			            case 97:
 			            case 65:
 			            case KeyEvent.VK_LEFT:
+			            	if (direction == Direction.RIGHT)
+			            		break;
 			            	game.snake.dir[0] = -1;
 			            	game.snake.dir[1] = 0;
+			            	nextDir = Direction.LEFT;
 			            	running = true;
 			                break;
 			            case 100:
 			            case 68:
 			            case KeyEvent.VK_RIGHT:
+			            	if (direction == Direction.LEFT)
+			            		break;
 			            	game.snake.dir[0] = 1;
 			            	game.snake.dir[1] = 0;
+			            	nextDir = Direction.RIGHT;
 			            	running = true;
 			                break;
 			        }
@@ -85,6 +100,8 @@ public class Game extends JFrame implements ActionListener {
 			});
 			game.setVisible(true);
 			game.init();
+			// System.out.println("Snake Pos: {" + game.snake.headPos()[0] + ", " + game.snake.headPos()[1] + "}");
+			// System.out.println("Apple Pos: {" + game.apple[0] + ", " + game.apple[1] + "}");
 		});
 	}
 
@@ -116,15 +133,16 @@ public class Game extends JFrame implements ActionListener {
 				snake.extendSnake();
 				randomiseApplePos();
 			}
-			
+			direction = nextDir;
 			snake.update();
 			alive = !checkAlive();
 			if (running) {
-				Short[] headPos = new Short[] {(Short)snake.headPos()[0], (Short)snake.headPos()[1]};
-				for (Short[] s : snake) {
+			    short[] headPos = snake.headPos();
+				ArrayList<short[]> sneik = snake.withoutHead();
+				for (short[] s : sneik) {
 					if (s[0] == headPos[0] && s[1] == headPos[1]) {
 						alive = false;
-						System.out.println("Collision");
+						// System.out.println("Collision");
 						break;
 					}
 				}
